@@ -14,3 +14,5 @@ export const TYPEORM_ROOT_OPTIONS: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
   imports: [ConfigModule],
 };
+
+export const POSTGRES_DUPLICATE_ERR_CODE = '23505';

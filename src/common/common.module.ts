@@ -1,5 +1,6 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { DataSerializationInterceptor } from './interceptors/data-serialization.interceptor';
 
 @Module({
   providers: [
@@ -11,6 +12,11 @@ import { APP_PIPE } from '@nestjs/core';
           transform: true,
           forbidUnknownValues: true,
         }),
+    },
+
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DataSerializationInterceptor,
     },
   ],
 })

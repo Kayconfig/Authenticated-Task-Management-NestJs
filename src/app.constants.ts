@@ -16,3 +16,6 @@ export const TYPEORM_ROOT_OPTIONS: TypeOrmModuleAsyncOptions = {
 };
 
 export const POSTGRES_DUPLICATE_ERR_CODE = '23505';
+
+export const INTERNAL_SERVER_ERR_MSG =
+  'Error occurred while processing your request, please try again later.';

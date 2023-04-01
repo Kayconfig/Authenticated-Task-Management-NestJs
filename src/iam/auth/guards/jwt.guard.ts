@@ -23,7 +23,7 @@ export class JwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const request = context.switchToHttp().getRequest();
-      const token = request?.headers?.authorization;
+      const token = request?.headers?.authorization?.split(' ')[1];
       if (!token) {
         throw new UnauthorizedException(NO_TOKEN_FOUND_ERR_MSG);
       }
@@ -35,6 +35,7 @@ export class JwtGuard implements CanActivate {
       request.user = { id: payload.sub, email: payload.email };
       return true;
     } catch (error) {
+      console.error(error);
       if (error instanceof JsonWebTokenError) {
         throw new UnauthorizedException();
       }

@@ -11,7 +11,6 @@ import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
-import { ActiveUserDto } from 'src/common/dtos/active-user.dto';
 import { MutateTodoParamDto } from './dto/mutate-todo-param.dto';
 
 @Controller('todo')

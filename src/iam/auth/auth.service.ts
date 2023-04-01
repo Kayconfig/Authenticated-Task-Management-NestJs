@@ -64,13 +64,23 @@ export class AuthService {
         this.generateToken(payload, this.config.accessTokenTtl),
         this.generateToken(payload, this.config.refreshTokenTtl),
       ]);
-      const response = new SignInResponseDto();
-      response.accessToken = accessToken;
-      response.refreshAccessToken = refreshAccessToken;
+      const response = this.createSignInResponseDto(
+        accessToken,
+        refreshAccessToken,
+      );
       return response;
     } catch (err) {
       throw err;
     }
+  }
+  private createSignInResponseDto(
+    accessToken: string,
+    refreshAccessToken: string,
+  ) {
+    const response = new SignInResponseDto();
+    response.accessToken = accessToken;
+    response.refreshAccessToken = refreshAccessToken;
+    return response;
   }
   async generateToken(payload: Record<string, any>, tokenTtl: string) {
     return this.jwtService.sign(payload, {

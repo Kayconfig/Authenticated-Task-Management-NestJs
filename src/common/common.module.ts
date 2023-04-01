@@ -11,6 +11,7 @@ import { DataSerializationInterceptor } from './interceptors/data-serialization.
           whitelist: true,
           transform: true,
           forbidUnknownValues: true,
+          forbidNonWhitelisted: true,
         }),
     },
 

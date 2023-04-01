@@ -10,7 +10,7 @@ import { SignInDto } from './dtos/sign-in.dto';
 import { SignInResponseDto } from './dtos/sign-in-response.dto';
 import { SignUpResponseDto } from './dtos/sign-up-response.dto';
 import { SignUpDto } from './dtos/sign-up.dto';
-import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { HashingService } from './hashing/hashing.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { INTERNAL_SERVER_ERR_MSG } from 'src/app.constants';

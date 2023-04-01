@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { Observable } from 'rxjs';
 import { AuthService } from '../auth.service';
 import { authConfig } from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';

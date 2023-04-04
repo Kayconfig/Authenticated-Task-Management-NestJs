@@ -17,6 +17,8 @@ import { INTERNAL_SERVER_ERR_MSG } from 'src/app.constants';
 import { ConfigType } from '@nestjs/config';
 import { authConfig } from './config/jwt.config';
 import { UserService } from 'src/user/user.service';
+import { handleResponse } from 'src/common/handleResponse';
+import { createInstance } from 'src/task/createInstance';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +40,7 @@ export class AuthService {
       }
       const password = await this.hashingService.hash(dto.password);
       await this.userService.create({ email, password });
-      return new SignUpResponseDto('registration successful');
+      return createInstance(SignUpResponseDto, 'registration successful');
     } catch (err) {
       throw err;
     }
@@ -64,24 +66,15 @@ export class AuthService {
         this.generateToken(payload, this.config.accessTokenTtl),
         this.generateToken(payload, this.config.refreshTokenTtl),
       ]);
-      const response = this.createSignInResponseDto(
+      return createInstance(SignInResponseDto, {
         accessToken,
         refreshAccessToken,
-      );
-      return response;
+      });
     } catch (err) {
       throw err;
     }
   }
-  private createSignInResponseDto(
-    accessToken: string,
-    refreshAccessToken: string,
-  ) {
-    const response = new SignInResponseDto();
-    response.accessToken = accessToken;
-    response.refreshAccessToken = refreshAccessToken;
-    return response;
-  }
+
   async generateToken(payload: Record<string, any>, tokenTtl: string) {
     return this.jwtService.sign(payload, {
       issuer: this.config.issuer,

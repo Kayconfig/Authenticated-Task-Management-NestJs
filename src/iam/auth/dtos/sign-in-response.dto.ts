@@ -1,9 +1,10 @@
-import { IsString } from 'class-validator';
-
 export class SignInResponseDto {
-  @IsString()
-  accessToken: string;
-
-  @IsString()
-  refreshAccessToken: string;
+  data: {
+    accessToken: string;
+    refreshAccessToken: string;
+  };
+  constructor(input: { accessToken: string; refreshAccessToken: string }) {
+    const { accessToken, refreshAccessToken } = input;
+    this.data = { accessToken, refreshAccessToken };
+  }
 }

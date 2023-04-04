@@ -4,6 +4,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import {
+  AllTasksResponseDto,
+  CreateTaskResponseDto,
+} from './dto/responses.dto';
+import { createInstance } from './createInstance';
 
 const TODO_NOT_FOUND_ERR_MSG = 'Task not found';
 
@@ -13,10 +18,16 @@ export class TodoService {
     @InjectRepository(Task)
     private readonly todoRepo: Repository<Task>,
   ) {}
-  async create(createTodoDto: CreateTaskDto, ownerId: string) {
+  async create(
+    createTodoDto: CreateTaskDto,
+    ownerId: string,
+  ): Promise<CreateTaskResponseDto> {
     try {
       const task = await this.todoRepo.create({ ...createTodoDto, ownerId });
-      return this.todoRepo.save(task);
+      return createInstance(
+        CreateTaskResponseDto,
+        await this.todoRepo.save(task),
+      );
     } catch (error) {
       throw error;
     }
@@ -24,7 +35,10 @@ export class TodoService {
 
   async findAll(ownerId: string) {
     try {
-      return this.todoRepo.find({ where: { ownerId } });
+      return createInstance(
+        AllTasksResponseDto,
+        await this.todoRepo.find({ where: { ownerId } }),
+      );
     } catch (error) {
       throw error;
     }
@@ -36,7 +50,7 @@ export class TodoService {
       if (!task) {
         throw new NotFoundException(TODO_NOT_FOUND_ERR_MSG);
       }
-      return task;
+      return createInstance(CreateTaskResponseDto, task);
     } catch (error) {
       throw error;
     }

@@ -17,7 +17,6 @@ import { INTERNAL_SERVER_ERR_MSG } from 'src/app.constants';
 import { ConfigType } from '@nestjs/config';
 import { authConfig } from './config/jwt.config';
 import { UserService } from 'src/user/user.service';
-import { handleResponse } from 'src/common/handleResponse';
 import { createInstance } from 'src/task/createInstance';
 
 @Injectable()

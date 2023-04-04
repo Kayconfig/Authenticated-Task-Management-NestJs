@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TYPEORM_ROOT_OPTIONS } from './app.constants';
 import { ConfigModule } from '@nestjs/config';
@@ -18,7 +16,5 @@ import { TodoModule } from './task/task.module';
     IamModule,
     TodoModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -12,10 +12,11 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { MutateTaskParamDto } from './dto/mutate-task-param.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('task')
 @ApiTags('/task')
+@ApiBearerAuth()
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 

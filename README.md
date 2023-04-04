@@ -23,6 +23,21 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Documentation
+
+```bash
+# development
+$ npm run start
+
+# or
+
+# watch mode
+$ npm run start:dev
+
+```
+
+navigate to your browser, use this `http://localhost/api/v1` to access Swagger Documentation
+
 ## Test
 
 Tests not ready yet ;)

@@ -31,7 +31,6 @@ export class RedisService
 
   async setTokenId(user: ActiveUserDto, tokenId: string) {
     const key = this.getKey(user);
-    console.log('saving tokenId:', { tokenId });
     await this.redisClient.set(key, tokenId);
   }
 
@@ -43,7 +42,6 @@ export class RedisService
   async validateTokenId(user: ActiveUserDto, tokenId: string) {
     const key = this.getKey(user);
     const savedTokenId = await this.redisClient.get(key);
-    console.log({ savedTokenId, tokenId });
     if (savedTokenId !== tokenId || !savedTokenId) {
       console.error('tokenId validation exception');
       throw new UnauthorizedException();

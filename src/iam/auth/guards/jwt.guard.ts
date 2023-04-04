@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { AuthService } from '../auth.service';
-import { authConfig } from '../config/jwt.config';
+
 import { ConfigType } from '@nestjs/config';
+import { iamConfig } from 'src/iam/config/iam.config';
 
 const NO_TOKEN_FOUND_ERR_MSG = 'Missing authorization header';
 
@@ -16,8 +17,8 @@ const NO_TOKEN_FOUND_ERR_MSG = 'Missing authorization header';
 export class JwtGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
-    @Inject(authConfig.KEY)
-    private readonly config: ConfigType<typeof authConfig>,
+    @Inject(iamConfig.KEY)
+    private readonly config: ConfigType<typeof iamConfig>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

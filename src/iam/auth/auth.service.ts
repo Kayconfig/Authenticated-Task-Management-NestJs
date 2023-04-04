@@ -15,9 +15,14 @@ import { HashingService } from './hashing/hashing.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { INTERNAL_SERVER_ERR_MSG } from 'src/app.constants';
 import { ConfigType } from '@nestjs/config';
-import { authConfig } from './config/jwt.config';
 import { UserService } from 'src/user/user.service';
 import { createInstance } from 'src/task/createInstance';
+import { randomUUID } from 'crypto';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { RedisService } from './redis/redis.service';
+import { ActiveUserDto } from 'src/common/dtos/active-user.dto';
+import { iamConfig } from '../config/iam.config';
+import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +30,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly hashingService: HashingService,
     private readonly userService: UserService,
-    @Inject(authConfig.KEY)
-    private readonly config: ConfigType<typeof authConfig>,
+    @Inject(iamConfig.KEY)
+    private readonly config: ConfigType<typeof iamConfig>,
+    private readonly redisService: RedisService,
   ) {}
   async signUp(dto: SignUpDto): Promise<SignUpResponseDto> {
     try {
@@ -60,25 +66,34 @@ export class AuthService {
       if (!passwordIsValid) {
         throw new BadRequestException('Invalid email or password');
       }
-      const payload = { sub: user.id, email: user.email };
-      const [accessToken, refreshAccessToken] = await Promise.all([
-        this.generateToken(payload, this.config.accessTokenTtl),
-        this.generateToken(payload, this.config.refreshTokenTtl),
-      ]);
-      return createInstance(SignInResponseDto, {
-        accessToken,
-        refreshAccessToken,
-      });
+      const tokenId = randomUUID();
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        tokenId,
+      };
+      const tokens = await this.generateAccessAndRefreshToken(payload);
+      await this.updateTokenId({ email: user.email, id: user.id }, tokenId);
+      return createInstance(SignInResponseDto, tokens);
     } catch (err) {
       throw err;
     }
   }
 
+  private async generateAccessAndRefreshToken(payload: Record<string, any>) {
+    const [accessToken, refreshAccessToken] = await Promise.all([
+      this.generateToken(omit(payload, 'tokenId'), this.config.accessTokenTtl),
+      this.generateToken(payload, this.config.refreshTokenTtl),
+    ]);
+
+    return { accessToken, refreshAccessToken };
+  }
+
   async generateToken(payload: Record<string, any>, tokenTtl: string) {
+    payload.exp = ((Date.now() / 1000) | 0) + +tokenTtl;
+    payload.iss = this.config.issuer;
     return this.jwtService.sign(payload, {
-      issuer: this.config.issuer,
       secret: this.config.secret,
-      expiresIn: tokenTtl,
     });
   }
   async decodeToken(token: string, tokenTtl: string) {
@@ -90,10 +105,43 @@ export class AuthService {
       });
       return payload;
     } catch (error) {
+      console.error('decodeToken Error::', error);
       if (error instanceof JsonWebTokenError) {
         throw new UnauthorizedException();
       }
       throw new InternalServerErrorException(INTERNAL_SERVER_ERR_MSG);
     }
+  }
+
+  async refreshToken(dto: RefreshTokenDto) {
+    try {
+      const payload = await this.decodeToken(
+        dto.refreshToken,
+        this.config.refreshTokenTtl,
+      );
+      const user = this.createActiveUserDto(payload.email, payload.sub);
+
+      const tokens = await this.generateAccessAndRefreshToken(payload);
+
+      // validate tokenId
+      await this.redisService.validateTokenId(user, payload.tokenId);
+      await this.updateTokenId(user, randomUUID());
+
+      return createInstance(SignInResponseDto, tokens);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  private async updateTokenId(user: ActiveUserDto, tokenId: string) {
+    // generate tokens, and store tokenId
+    await this.redisService.setTokenId(user, tokenId);
+  }
+
+  private createActiveUserDto(email: string, id: string): ActiveUserDto {
+    const user = new ActiveUserDto();
+    user.email = email;
+    user.id = id;
+    return user;
   }
 }

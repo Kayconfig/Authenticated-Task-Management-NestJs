@@ -22,7 +22,6 @@ import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { RedisService } from './redis/redis.service';
 import { ActiveUserDto } from 'src/common/dtos/active-user.dto';
 import { iamConfig } from '../config/iam.config';
-import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {

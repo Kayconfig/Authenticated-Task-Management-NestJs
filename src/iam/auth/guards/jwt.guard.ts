@@ -28,10 +28,7 @@ export class JwtGuard implements CanActivate {
       if (!token) {
         throw new UnauthorizedException(NO_TOKEN_FOUND_ERR_MSG);
       }
-      const payload = await this.authService.decodeToken(
-        token,
-        this.config.accessTokenTtl,
-      );
+      const payload = await this.authService.validateAndDecodeToken(token);
 
       request.user = { id: payload.sub, email: payload.email };
       return true;

@@ -82,7 +82,7 @@ export class AuthService {
 
   private async generateAccessAndRefreshToken(payload: Record<string, any>) {
     const [accessToken, refreshAccessToken] = await Promise.all([
-      this.generateToken(omit(payload, 'tokenId'), this.config.accessTokenTtl),
+      this.generateToken(payload, this.config.accessTokenTtl),
       this.generateToken(payload, this.config.refreshTokenTtl),
     ]);
 
@@ -96,12 +96,29 @@ export class AuthService {
       secret: this.config.secret,
     });
   }
-  async decodeToken(token: string, tokenTtl: string) {
+
+  async validateAndDecodeToken(token: string) {
+    try {
+      const { email, sub, tokenId } = await this.decodeToken(token);
+      const activeUser = this.createActiveUserDto(email, sub);
+      await this.redisService.validateTokenId(activeUser, tokenId);
+      return { email, sub, tokenId };
+    } catch (error) {
+      console.error('decodeToken Error::', error);
+      if (
+        error instanceof JsonWebTokenError ||
+        error instanceof UnauthorizedException
+      ) {
+        throw new UnauthorizedException();
+      }
+      throw new InternalServerErrorException(INTERNAL_SERVER_ERR_MSG);
+    }
+  }
+  async decodeToken(token: string) {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         issuer: this.config.issuer,
         secret: this.config.secret,
-        maxAge: tokenTtl,
       });
       return payload;
     } catch (error) {
@@ -115,17 +132,13 @@ export class AuthService {
 
   async refreshToken(dto: RefreshTokenDto) {
     try {
-      const payload = await this.decodeToken(
-        dto.refreshToken,
-        this.config.refreshTokenTtl,
-      );
+      const payload = await this.decodeToken(dto.refreshToken);
       const user = this.createActiveUserDto(payload.email, payload.sub);
-
-      const tokens = await this.generateAccessAndRefreshToken(payload);
-
       // validate tokenId
       await this.redisService.validateTokenId(user, payload.tokenId);
       await this.updateTokenId(user, randomUUID());
+
+      const tokens = await this.generateAccessAndRefreshToken(payload);
 
       return createInstance(SignInResponseDto, tokens);
     } catch (err) {

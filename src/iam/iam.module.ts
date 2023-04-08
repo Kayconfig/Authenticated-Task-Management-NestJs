@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth/auth.service';
-import { AuthController } from './auth/auth.controller';
+import { AuthService } from './authentication/auth.service';
+import { AuthController } from './authentication/auth.controller';
 import { UserModule } from 'src/user/user.module';
-import { HashingService } from './auth/hashing/hashing.service';
-import { BcryptService } from './auth/hashing/bcrypt.service';
+import { HashingService } from './authentication/hashing/hashing.service';
+import { BcryptService } from './authentication/hashing/bcrypt.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { JwtGuard } from './auth/guards/jwt.guard';
+import { JwtGuard } from './authentication/guards/jwt.guard';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/guards/auth.guard';
-import { RedisService } from './auth/redis/redis.service';
+import { AuthGuard } from './authentication/guards/auth.guard';
+import { RedisService } from './authentication/redis/redis.service';
 import { iamConfig } from './config/iam.config';
 
 @Module({

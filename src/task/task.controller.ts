@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { TodoService } from './task.service';
+import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
@@ -18,19 +18,19 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @ApiTags('/task')
 @ApiBearerAuth()
 export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
+  constructor(private readonly taskService: TaskService) {}
 
   @Post()
   create(
     @Body() createTodoDto: CreateTaskDto,
     @ActiveUser('id') userId: string,
   ) {
-    return this.todoService.create(createTodoDto, userId);
+    return this.taskService.create(createTodoDto, userId);
   }
 
   @Get()
   findAll(@ActiveUser('id') userId: string) {
-    return this.todoService.findAll(userId);
+    return this.taskService.findAll(userId);
   }
 
   @Get(':id')
@@ -39,7 +39,7 @@ export class TodoController {
     @ActiveUser('id') userId: string,
   ) {
     const todoId = param.id;
-    return this.todoService.findOne(todoId, userId);
+    return this.taskService.findOne(todoId, userId);
   }
 
   @Patch(':id')
@@ -49,12 +49,12 @@ export class TodoController {
     @ActiveUser('id') userId: string,
   ) {
     const todoId = param.id;
-    return this.todoService.update(todoId, updateTodoDto, userId);
+    return this.taskService.update(todoId, updateTodoDto, userId);
   }
 
   @Delete(':id')
   remove(@Param() param: MutateTaskParamDto, @ActiveUser('id') userId: string) {
     const todoId = param.id;
-    return this.todoService.remove(todoId, userId);
+    return this.taskService.remove(todoId, userId);
   }
 }

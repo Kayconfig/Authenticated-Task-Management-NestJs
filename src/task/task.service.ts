@@ -13,7 +13,7 @@ import { createInstance } from './createInstance';
 const TODO_NOT_FOUND_ERR_MSG = 'Task not found';
 
 @Injectable()
-export class TodoService {
+export class TaskService {
   constructor(
     @InjectRepository(Task)
     private readonly todoRepo: Repository<Task>,

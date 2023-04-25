@@ -9,24 +9,23 @@ import {
   CreateTaskResponseDto,
 } from './dto/responses.dto';
 import { createInstance } from './createInstance';
-
-const TODO_NOT_FOUND_ERR_MSG = 'Task not found';
+import { TODO_NOT_FOUND_ERR_MSG } from './task.constants';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectRepository(Task)
-    private readonly todoRepo: Repository<Task>,
+    private readonly taskRepo: Repository<Task>,
   ) {}
   async create(
     createTodoDto: CreateTaskDto,
     ownerId: string,
   ): Promise<CreateTaskResponseDto> {
     try {
-      const task = await this.todoRepo.create({ ...createTodoDto, ownerId });
+      const task = await this.taskRepo.create({ ...createTodoDto, ownerId });
       return createInstance(
         CreateTaskResponseDto,
-        await this.todoRepo.save(task),
+        await this.taskRepo.save(task),
       );
     } catch (error) {
       throw error;
@@ -37,7 +36,7 @@ export class TaskService {
     try {
       return createInstance(
         AllTasksResponseDto,
-        await this.todoRepo.find({ where: { ownerId } }),
+        await this.taskRepo.find({ where: { ownerId } }),
       );
     } catch (error) {
       throw error;
@@ -46,7 +45,7 @@ export class TaskService {
 
   async findOne(id: string, ownerId: string) {
     try {
-      const task = await this.todoRepo.findOne({ where: { id, ownerId } });
+      const task = await this.taskRepo.findOne({ where: { id, ownerId } });
       if (!task) {
         throw new NotFoundException(TODO_NOT_FOUND_ERR_MSG);
       }
@@ -56,11 +55,11 @@ export class TaskService {
     }
   }
 
-  async update(id: string, updateTodoDto: UpdateTaskDto, ownerId: string) {
+  async update(id: string, updateTaskDto: UpdateTaskDto, ownerId: string) {
     try {
-      const result = await this.todoRepo.update(
+      const result = await this.taskRepo.update(
         { id, ownerId },
-        { ...updateTodoDto },
+        { ...updateTaskDto },
       );
       if (!result.affected) {
         throw new NotFoundException(TODO_NOT_FOUND_ERR_MSG);
@@ -73,7 +72,7 @@ export class TaskService {
 
   async remove(id: string, ownerId: string) {
     try {
-      await this.todoRepo.delete({ id, ownerId });
+      await this.taskRepo.delete({ id, ownerId });
     } catch (error) {
       throw error;
     }
